@@ -1,12 +1,19 @@
-system('clear')
-
 dragon = {
+  name: "Dragon",
   hp: 2000,
   defense: 120,
   str: 150,
   weapon: 0
 }
+hell_dog = {
+  name: "Hell Dog ><",
+  hp: 1500,
+  defense: 220,
+  str: 250,
+  weapon: 0
+}
 hero = {
+  name: "Hero",
   hp: 2000,
   defense: 120,
   str: 150,
@@ -15,80 +22,108 @@ hero = {
   shield_active: false
 }
 
-def player_step(hero, dragon)
+characters = [dragon,hell_dog,hero]
+
+def player_step(player, computer)
  puts "It's your turn to go"
  puts "Choose what to do:"
  puts "==========================="
  puts "Press 1 for attack"
  puts "Press 2 to miss the step"
- puts "Press 3 for shield"
+ puts "Press 3 for shield" if player[:name] == "Hero"
  puts "==========================="
  user_action = gets.chomp
 
  case user_action
  when "1"
   if rand(1..4) < 4
-    damage = hero[:str] + hero[:weapon] - dragon[:defense]
-    dragon[:hp] -= damage
-    puts "You hit the Dragon with #{damage} hp"
-    puts "Now dragon have #{dragon[:hp]} HP"
+    damage = player[:str] + player[:weapon] - computer[:defense]
+    computer[:hp] -= damage
+    puts "You hit the #{computer[:name]} with #{damage} hp"
+    puts "Now #{computer[:name]} have #{computer[:hp]} HP"
     puts "--------------------------------------"
   else
     puts "You missed! =("
     puts "--------------------------------------"
-  end
- when "2"
-   puts "You decided to miss the step. Ok."
-   puts "--------------------------------------"
-   
+  end  
  when "3" 
-    hero[:shield_active] = true
+    player[:shield_active] = true
     puts "You decided to rise a shield. Defense mode: on"
     puts "--------------------------------------" 
+ else 
+   puts "You decided to miss the step. Ok."
+   puts "--------------------------------------"
  end
 end
 
-def hero_defense_calculator(hero)
-  if hero[:shield_active] == false
-    return hero[:defense]
-  else 
-    return hero[:defense]+hero[:shield]
+def player_defense_calculator(player)
+  unless player[:name] == "Hero"
+    return player[:defense]
+  else
+    return player[:defense]+player[:shield]
   end
 end
 
-def dragon_step(hero, dragon)
-
+def computer_step(player, computer)
   if rand(1..2) == 1
-    damage = dragon[:str] + dragon[:weapon] - hero_defense_calculator(hero)
-    hero[:hp] -= damage
-    puts "The Dragon hits you with #{damage} hp"
-    puts "Now you have #{hero[:hp]} HP"
+    damage = computer[:str] + computer[:weapon] - player_defense_calculator(player)
+    player[:hp] -= damage
+    puts "The #{computer[:name]} hits you with #{damage} hp"
+    puts "Now you have #{player[:hp]} HP"
     puts "--------------------------------------"
   else
-    puts "Dragon missed his step!"
+    puts "#{computer[:name]} missed his step!"
     puts "--------------------------------------"
   end
-  hero[:shield_active] = false
+  player[:shield_active] = false
 end
 
-def hero_dead?(hero)
-  true if hero[:hp] <= 0 
+def player_dead?(player)
+  true if player[:hp] <= 0 
 end
 
-def dragon_dead?(dragon)
-  true if dragon[:hp] <= 0 
+def computer_dead?(computer)
+  true if computer[:hp] <= 0 
 end
 
+system('clear')
+puts "== Choose your destiny =="
+puts
+characters.each_with_index do |character, index|
+ puts "== print #{index+1} for =="
+ puts "Name: #{character[:name]}"
+ puts "Power: #{character[:str]}"
+ puts "HP: #{character[:hp]}"
+ puts "Defense: #{character[:defense]}"
+ print "\n\n"
+end
+
+choice = gets.chomp.to_i - 1
+
+player = characters[choice]
+characters.delete(player)
+
+computer = characters[rand(characters.length)]
+
+puts "== You have chosen  #{player[:name]}!=="
+puts "== The Computer have chosen  #{computer[:name]}!=="
+puts " Press Enter to start..."
+gets.chomp
+system('clear')
+
+round_counter = 0
 loop do
-  player_step(hero, dragon) unless hero_dead?(hero)
-  dragon_step(hero, dragon) unless dragon_dead?(dragon)
+  round_counter += 1
+  puts "************* Round #{round_counter}. Fight! *************"
+  player_step(player, computer) unless player_dead?(player)
+  computer_step(player, computer) unless computer_dead?(computer)
+  print "\n\n"
 
-  if hero_dead?(hero) 
+  if player_dead?(player)
     puts "Sorry, you are dead =("
     break
-  elsif dragon_dead?(dragon)
-    puts "You defeated the dragon, yay!"
+  elsif computer_dead?(computer)
+    puts "You defeated the #{computer[:name]}, yay!"
     break
-  end
-    
+  end 
 end
